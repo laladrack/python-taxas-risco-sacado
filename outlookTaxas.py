@@ -29,12 +29,12 @@ def csv_itau(inbox, path, excel):
         #transforma tabela em dicionário -> csv
             dict_tabela = dict({tabela[1]:tabela[3], tabela[5]:tabela[7], tabela[9]:tabela[11], tabela[13]:tabela[15], tabela[17]:tabela[19]})
 
-            with open(path + '\\taxasItau ' + datetime.datetime.now().strftime('%d-%m') + '.csv', 'w', newline='') as myfile:
+            with open(path + '\\taxasItau ' + datetime.datetime.now().strftime('%d-%m-%Y') + '.csv', 'w', newline='') as myfile:
                 wr = csv.DictWriter(myfile, dict_tabela.keys(), delimiter=',')
                 wr.writeheader()
                 wr.writerow(dict_tabela)
 
-            filein = pd.read_csv(path + '\\taxasItau ' + datetime.datetime.now().strftime('%d-%m') + '.csv')
+            filein = pd.read_csv(path + '\\taxasItau ' + datetime.datetime.now().strftime('%d-%m-%Y') + '.csv')
             filein.to_excel(excel, sheet_name='ITAU + PISO', index=None)
 
 #SANTANDER
@@ -48,7 +48,7 @@ def csv_santander(inbox, path, excel):
             attachments = email.Attachments
             for attachment in attachments:
                 if attachment.DisplayName.endswith(".xlsx"):
-                    excel_banco = path + "\\" + f"taxasSantander {datetime.datetime.now().strftime('%d-%m')}.xlsx"
+                    excel_banco = path + "\\" + f"taxasSantander {datetime.datetime.now().strftime('%d-%m-%Y')}.xlsx"
                     attachment.SaveAsFile(excel_banco)
     
     df = pd.read_excel(excel_banco, engine='openpyxl')
