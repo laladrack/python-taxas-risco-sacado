@@ -1,7 +1,6 @@
 import datetime
 import csv
 import pandas as pd
-import openpyxl
 
 yesterday = datetime.datetime.now() - datetime.timedelta(1)
 today = datetime.datetime.now()
@@ -53,8 +52,24 @@ def csv_santander(inbox, path, excel):
                     attachment.SaveAsFile(excel_banco)
     
     df = pd.read_excel(excel_banco, engine='openpyxl')
+    
+    days_needed = (30, 45, 60, 75, 90)
+    
+    for day in days_needed:
+        found = df[df['Dias Corridos'].astype('str').str.match(f'^{day}$')]
+        if len(found) == 0:
+            closest_found = False
+            while not closest_found:
+                for i in range(1, 10):  # limit i to a reasonable number
+                    found1 = df[df['Dias Corridos'].astype('str').str.match(f'^{str(day - i)}$')]
+                    if len(found1) != 0:
+                        df.replace(to_replace=(day - i), value=(day), inplace=True)
+                        closest_found = True
+                        break
+
     df = df.drop(columns='DATA')
-    df = df[df['Dias Corridos'].isin([30, 45, 60, 75, 90])]
-    df.set_index('Dias Corridos',inplace=True)
+    df['CUSTO MÊS'] = df['CUSTO MÊS'].map('{:,.4f}'.format)
+    df = df[df['Dias Corridos'].isin(days_needed)]
+    df.set_index('Dias Corridos', inplace=True)
     df = df.transpose()
     df.to_excel(excel, sheet_name='SANTANDER + PISO', index=None)
